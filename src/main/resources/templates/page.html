@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Rate List</title>
+    <script   src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+</head>
+<style>
+    table {
+        width: 100%;
+        border: 4px double black;
+        border-collapse: collapse;
+    }
+    th {
+        text-align: left;
+        background: #ccc;
+        padding: 5px;
+        border: 1px solid black;
+    }
+    td {
+        padding: 5px;
+        border: 1px solid black;
+    }
+</style>
+<body>
+
+<script type="application/javascript">
+    $.getJSON("getall", function (data) {
+        var trHTML = '';
+        $.each(data, function (index, value) {
+            trHTML  += '<tr class="item">' +
+                    '<td class="time">' + value.time + '</td>' +
+                    '<td class="rate">' + value.rate + '</td>' +
+                    '</tr>';
+        });
+        $('#rates_table').append(trHTML);
+    });
+
+    $(document).ready(function () {
+        $("#btn_get_rate").click(function () {
+            $("#rates_table tr.item").remove();
+            var start = $('input[name="start"]').val();
+            var end = $('input[name="end"]').val();
+            console.log("start - " + start);
+            console.log("end - " + end);
+            var path = "rates/" + start + "/" + end + "/";
+            console.log("Path - " + path);
+            $.ajax({
+                type: "GET",
+                url: path,
+                dataType: "json",
+                success: function(data){
+                    var trHTML = '';
+                    $.each(data, function(index) {
+                        trHTML  += '<tr class="item">' +
+                            '<td class="time">' + data[index].date + '</td>' +
+                            '<td class="rate">' + data[index].rate + '</td>' +
+                            '</tr>';
+                });
+                    $('#rates_table').append(trHTML);
+                }
+            });
+        });
+    });
+
+    $(document).ready(function () {
+        $("#btn_get_rate_exel").click(function () {
+            var data = new Array();
+            $("tr.item").each(function() {
+                $this = $(this);
+                var time = $this.find("td.time").html();
+                var rate = $this.find("td.rate").html();
+                var rateItem = {
+                    time : time,
+                    rate : rate
+                };
+                data.push(rateItem);
+            });
+            console.log("size rateItem - " + data.length);
+            var result = JSON.stringify(data);
+            console.log("send - " + result);
+            $.ajax({
+                type: "POST",
+                url: "file",
+                data: result,
+                contentType: "application/json; charset=utf-8",
+                dataType: "text",
+                success: function (response) {
+                    var file = response;
+                    window.location = "download/" + file;
+                }
+            });
+        });
+    });
+
+</script>
+
+<button id="btn_get_rate">Download exchange rates</button>
+<button id="btn_get_rate_exel">Download Excel</button>
+<br></br>
+<br></br>
+<form>
+    Start time :
+    <input id="input_start" type="date" name="start"/>
+    End time :
+    <input id="input_end" type="date" name="end"/>
+</form>
+<br></br>
+<table id="rates_table">
+    <tr>
+        <th>Date</th>
+        <th>Exchange rate</th>
+    </tr>
+</table>
+
+
+</body>
+</html>
