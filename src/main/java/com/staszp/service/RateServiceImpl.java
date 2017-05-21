@@ -6,8 +6,6 @@ import com.staszp.dto.incommingmodel.IncomeRateModelDto;
 import com.staszp.httpclient.HttpClient;
 import com.staszp.model.Rate;
 import com.staszp.reposotiry.RateRepository;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -22,7 +20,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 @Service
 public class RateServiceImpl implements RateService {
