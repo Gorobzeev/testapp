@@ -3,7 +3,8 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Rate List</title>
-    <script   src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script  src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
 </head>
 <style>
     table {
@@ -22,7 +23,7 @@
         border: 1px solid black;
     }
 </style>
-<body>
+<body onload="displayLineChart()">
 
 <script type="application/javascript">
     $.getJSON("getall", function (data) {
@@ -92,7 +93,6 @@
             });
         });
     });
-
 </script>
 
 <button id="btn_get_rate">Download exchange rates</button>
@@ -112,6 +112,54 @@
         <th>Exchange rate</th>
     </tr>
 </table>
+
+<canvas id="line-chart"></canvas>
+
+<script>
+
+    function arrLabel() {
+        var arrLabel = [];
+        $("tr.item").each(function() {
+            $this = $(this);
+            var time = $this.find("td.time").html();
+            arrLabel.push(time);
+        });
+        return arrLabel;
+    }
+
+    function arrData() {
+        var arrDate = [];
+        $("tr.item").each(function() {
+            $this = $(this);
+            var rate = $this.find("td.rate").html();
+            arrDate.push(rate);
+        });
+        return arrDate;
+    }
+
+    function displayLineChart() {
+        new Chart(document.getElementById("line-chart"), {
+
+            type: 'line',
+            data: {
+                labels: arrLabel(),
+                datasets: [{
+                    data: arrData(),
+                    label: "USD",
+                    borderColor: "#3e95cd",
+                    fill: false
+                }
+                ]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Currency USD by date'
+                }
+            }
+        });
+    }
+</script>
 
 
 </body>
