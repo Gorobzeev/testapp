@@ -27,7 +27,9 @@ public class Controller {
     @RequestMapping(value = "/getall", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     @ResponseBody
     public List<Rate> getAllUsers() {
-        return rateService.getAll();
+        List<Rate> result = rateService.getAll();
+        logger.info("Leaving getAllUsers() size result {}", result.size());
+        return result;
     }
 
     @RequestMapping(value = "/rates/{start}/{end}/", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
@@ -44,7 +46,9 @@ public class Controller {
             logger.warn("Not valid data: end = {}", end);
             throw new TestAppException("End time is not valid", 1002);
         }
-        return rateService.getRates(start, end);
+        List<RateResultModelDto> result = rateService.getRates(start, end);
+        logger.info("Leaving getRates() size result {}", result.size());
+        return result;
     }
 
     @RequestMapping(value = "/page", method = RequestMethod.GET)
@@ -66,7 +70,7 @@ public class Controller {
     @RequestMapping(value = "/download/{file_name:.+}", method = RequestMethod.GET)
     public void getFile
             (@PathVariable("file_name") String fileName, HttpServletResponse response) throws Exception {
-        logger.info("Entering download()");
+        logger.info("Entering download() filename = {}", fileName);
         rateService.getFile(fileName,response);
     }
 

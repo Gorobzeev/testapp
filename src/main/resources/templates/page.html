@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Rate List</title>
-    <script  src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
 </head>
 <style>
@@ -12,88 +12,20 @@
         border: 4px double black;
         border-collapse: collapse;
     }
+
     th {
         text-align: left;
         background: #ccc;
         padding: 5px;
         border: 1px solid black;
     }
+
     td {
         padding: 5px;
         border: 1px solid black;
     }
 </style>
-<body onload="displayLineChart()">
-
-<script type="application/javascript">
-    $.getJSON("getall", function (data) {
-        var trHTML = '';
-        $.each(data, function (index, value) {
-            trHTML  += '<tr class="item">' +
-                    '<td class="time">' + value.time + '</td>' +
-                    '<td class="rate">' + value.rate + '</td>' +
-                    '</tr>';
-        });
-        $('#rates_table').append(trHTML);
-    });
-
-    $(document).ready(function () {
-        $("#btn_get_rate").click(function () {
-            $("#rates_table tr.item").remove();
-            var start = $('input[name="start"]').val();
-            var end = $('input[name="end"]').val();
-            console.log("start - " + start);
-            console.log("end - " + end);
-            var path = "rates/" + start + "/" + end + "/";
-            console.log("Path - " + path);
-            $.ajax({
-                type: "GET",
-                url: path,
-                dataType: "json",
-                success: function(data){
-                    var trHTML = '';
-                    $.each(data, function(index) {
-                        trHTML  += '<tr class="item">' +
-                            '<td class="time">' + data[index].date + '</td>' +
-                            '<td class="rate">' + data[index].rate + '</td>' +
-                            '</tr>';
-                });
-                    $('#rates_table').append(trHTML);
-                }
-            });
-        });
-    });
-
-    $(document).ready(function () {
-        $("#btn_get_rate_exel").click(function () {
-            var data = new Array();
-            $("tr.item").each(function() {
-                $this = $(this);
-                var time = $this.find("td.time").html();
-                var rate = $this.find("td.rate").html();
-                var rateItem = {
-                    time : time,
-                    rate : rate
-                };
-                data.push(rateItem);
-            });
-            console.log("size rateItem - " + data.length);
-            var result = JSON.stringify(data);
-            console.log("send - " + result);
-            $.ajax({
-                type: "POST",
-                url: "file",
-                data: result,
-                contentType: "application/json; charset=utf-8",
-                dataType: "text",
-                success: function (response) {
-                    var file = response;
-                    window.location = "download/" + file;
-                }
-            });
-        });
-    });
-</script>
+<body>
 
 <button id="btn_get_rate">Download exchange rates</button>
 <button id="btn_get_rate_exel">Download Excel</button>
@@ -115,41 +47,98 @@
 
 <canvas id="line-chart"></canvas>
 
-<script>
 
-    function arrLabel() {
-        var arrLabel = [];
-        $("tr.item").each(function() {
-            $this = $(this);
-            var time = $this.find("td.time").html();
-            arrLabel.push(time);
+<script type="application/javascript">
+    $.getJSON("getall", function (data) {
+        var trHTML = '';
+        var timeArray = new Array();
+        var rateArray = new Array();
+        $.each(data, function (index, value) {
+            trHTML += '<tr class="item">' +
+                '<td class="time">' + value.time + '</td>' +
+                '<td class="rate">' + value.rate + '</td>' +
+                '</tr>';
+            timeArray.push(value.time);
+            rateArray.push(value.rate);
         });
-        return arrLabel;
-    }
+        $('#rates_table').append(trHTML);
+        displayLineChart(timeArray, rateArray);
+    });
 
-    function arrData() {
-        var arrDate = [];
-        $("tr.item").each(function() {
-            $this = $(this);
-            var rate = $this.find("td.rate").html();
-            arrDate.push(rate);
+    $(document).ready(function () {
+        $("#btn_get_rate").click(function () {
+            $("#rates_table tr.item").remove();
+            var start = $('input[name="start"]').val();
+            var end = $('input[name="end"]').val();
+            console.log("start - " + start);
+            console.log("end - " + end);
+            var path = "rates/" + start + "/" + end + "/";
+            console.log("Path - " + path);
+            var timeArray = new Array();
+            var rateArray = new Array();
+            $.ajax({
+                type: "GET",
+                url: path,
+                dataType: "json",
+                success: function (data) {
+                    var trHTML = '';
+                    $.each(data, function (index) {
+                        trHTML += '<tr class="item">' +
+                            '<td class="time">' + data[index].date + '</td>' +
+                            '<td class="rate">' + data[index].rate + '</td>' +
+                            '</tr>';
+                        timeArray.push(data[index].date);
+                        rateArray.push(data[index].rate);
+                    });
+                    $('#rates_table').append(trHTML);
+                }
+            });
+            displayLineChart(timeArray, rateArray);
         });
-        return arrDate;
-    }
+    });
 
-    function displayLineChart() {
+    $(document).ready(function () {
+        $("#btn_get_rate_exel").click(function () {
+            var data = new Array();
+            $("tr.item").each(function () {
+                $this = $(this);
+                var time = $this.find("td.time").html();
+                var rate = $this.find("td.rate").html();
+                var rateItem = {
+                    time: time,
+                    rate: rate
+                };
+                data.push(rateItem);
+            });
+            console.log("size rateItem - " + data.length);
+            var result = JSON.stringify(data);
+            console.log("send - " + result);
+            $.ajax({
+                type: "POST",
+                url: "file",
+                data: result,
+                contentType: "application/json; charset=utf-8",
+                dataType: "text",
+                success: function (response) {
+                    var file = response;
+                    window.location = "download/" + file;
+                }
+            });
+        });
+    });
+
+    function displayLineChart(timeArray, rateArray) {
         new Chart(document.getElementById("line-chart"), {
 
             type: 'line',
             data: {
-                labels: arrLabel(),
+                labels: timeArray,
                 datasets: [{
-                    data: arrData(),
+                    data: rateArray,
                     label: "USD",
                     borderColor: "#3e95cd",
                     fill: false
-                }
-                ]
+                }]
             },
             options: {
                 title: {
@@ -159,6 +148,8 @@
             }
         });
     }
+
+
 </script>
 
 
