@@ -34,14 +34,14 @@ public class RateServiceImpl implements RateService {
     private final String USD = "USD";
 
     @Autowired
-    private RateRepository someEntityRepository;
+    private RateRepository rateRepository;
 
     @Autowired
     private HttpClient httpClient;
 
     @Override
     public List<Rate> getAll() {
-        return someEntityRepository.findAll();
+        return rateRepository.findAll();
     }
 
     @Override
@@ -89,8 +89,8 @@ public class RateServiceImpl implements RateService {
 
     private void saveRatesToDataBase(List<RateResultModelDto> modelDtoList) {
         for (RateResultModelDto rateResultModelDto : modelDtoList) {
-            if (!someEntityRepository.existByTime(rateResultModelDto.getDate())) {
-                someEntityRepository.save(
+            if (!rateRepository.existByTime(rateResultModelDto.getDate())) {
+                rateRepository.save(
                         new Rate(rateResultModelDto.getDate(), String.valueOf(rateResultModelDto.getRate())));
             }
         }
