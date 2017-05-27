@@ -26,9 +26,9 @@ public class Controller {
 
     @RequestMapping(value = "/getall", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.GET)
     @ResponseBody
-    public List<Rate> getAllUsers() {
+    public List<Rate> getAllRates() {
         List<Rate> result = rateService.getAll();
-        logger.info("Leaving getAllUsers() size result {}", result.size());
+        logger.info("Leaving getAllRates() size result {}", result.size());
         return result;
     }
 
@@ -52,7 +52,7 @@ public class Controller {
     }
 
     @RequestMapping(value = "/page", method = RequestMethod.GET)
-    public String userList(Model model) {
+    public String getPage(Model model) {
         model.addAttribute("rates",  rateService.getAll());
         return "page";
     }
